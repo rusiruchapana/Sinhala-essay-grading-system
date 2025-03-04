@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SinhalaEssayGrading")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fbdf3edee36c3d27e199cdeddd47994f330e41c3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+20c6640172b911eacb857f1ea64d66e43dc72a27")]
 [assembly: System.Reflection.AssemblyProductAttribute("SinhalaEssayGrading")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SinhalaEssayGrading")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
