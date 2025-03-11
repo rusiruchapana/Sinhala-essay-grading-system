@@ -1,4 +1,3 @@
-
 using System.Diagnostics;
 using System.Text.Json;
 using System.IO;
@@ -6,7 +5,7 @@ using System.IO;
 public class EssayGradingService
 {
     private readonly string _pythonPath = "C:\\Users\\umega\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"; 
-    private readonly string _scriptPath = "C:\\Users\\umega\\Desktop\\Research\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\PythonScripts\\grade_essay.py"; // Ensure absolute path
+    private readonly string _scriptPath = "d:\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\PythonScripts\\grade_essay.py"; // Ensure absolute path
 
     public async Task<Dictionary<string, double>> GradeEssay(string essayText, int expectedWordCount, string topic)
     {

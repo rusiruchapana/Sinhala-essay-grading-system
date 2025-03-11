@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\umega\\Desktop\\Research\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj": {}
+    "D:\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj": {}
   },
   "projects": {
-    "C:\\Users\\umega\\Desktop\\Research\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj": {
+    "D:\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\umega\\Desktop\\Research\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj",
+        "projectUniqueName": "D:\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj",
         "projectName": "SinhalaEssayGrading",
-        "projectPath": "C:\\Users\\umega\\Desktop\\Research\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj",
+        "projectPath": "D:\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\SinhalaEssayGrading.csproj",
         "packagesPath": "C:\\Users\\umega\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\umega\\Desktop\\Research\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\obj\\",
+        "outputPath": "D:\\Sinhala-essay-grading-system\\SinhalaEssayGrading\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
