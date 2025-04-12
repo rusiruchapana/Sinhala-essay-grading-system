@@ -8,6 +8,7 @@ from essay_marker.file_processing.docx_extractor import process_uploaded_file
 from essay_marker.evaluator.word_count import calculate_word_count_marks
 from essay_marker.evaluator.word_richness import calculate_word_richness_marks
 from essay_marker.evaluator.relevance_checker import calculate_relevance_marks
+from essay_marker.evaluator.spelling_evaluator import SpellingEvaluator
 
 def convert_to_serializable(value):
     """Convert numpy and other non-serializable types to native Python types"""
@@ -19,6 +20,9 @@ def convert_to_serializable(value):
 @require_POST
 def evaluate_essay(request):
     try:
+        # Initialize spelling evaluator
+        spelling_evaluator = SpellingEvaluator()
+        
         # Initialize variables
         essay = ''
         required_word_count = 0
@@ -66,10 +70,14 @@ def evaluate_essay(request):
         relevance_marks = convert_to_serializable(
             calculate_relevance_marks(essay, topic)
         )
+        spelling_marks, _, _ = spelling_evaluator.evaluate_spelling(essay)
         
-        # Calculate total (average of all components)
+        # Calculate total marks (weighted average)
         total_marks = round(
-            (word_count_marks + word_richness_marks + relevance_marks) / 3, 
+            (word_count_marks * 0.2 + 
+             word_richness_marks * 0.2 + 
+             relevance_marks * 0.3 +
+             convert_to_serializable(spelling_marks) * 0.3),
             2
         )
         
@@ -77,11 +85,9 @@ def evaluate_essay(request):
             'word_count_marks': word_count_marks,
             'word_richness_marks': word_richness_marks,
             'relevance_marks': relevance_marks,
-            'total_marks': convert_to_serializable(total_marks),
-            'processed_word_count': len(essay.split())  # For verification
+            'spelling_marks': convert_to_serializable(spelling_marks),
+            'total_marks': total_marks
         })
         
-    except ValueError as e:
-        return JsonResponse({'error': str(e)}, status=400)
     except Exception as e:
-        return JsonResponse({'error': f"An unexpected error occurred: {str(e)}"}, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
