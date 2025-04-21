@@ -9,6 +9,7 @@ from essay_marker.evaluator.word_count import calculate_word_count_marks
 from essay_marker.evaluator.word_richness import calculate_word_richness_marks
 from essay_marker.evaluator.relevance_checker import calculate_relevance_marks
 from essay_marker.evaluator.spelling_evaluator import SpellingEvaluator
+from essay_marker.evaluator.grammar_evaluator import GrammarEvaluator
 
 def convert_to_serializable(value):
     """Convert numpy and other non-serializable types to native Python types"""
@@ -20,8 +21,9 @@ def convert_to_serializable(value):
 @require_POST
 def evaluate_essay(request):
     try:
-        # Initialize spelling evaluator
+        # Initialize evaluators
         spelling_evaluator = SpellingEvaluator()
+        grammar_evaluator = GrammarEvaluator()  # This will load the model on first use
         
         # Initialize variables
         essay = ''
@@ -32,18 +34,13 @@ def evaluate_essay(request):
         if request.FILES.get('file'):
             uploaded_file = request.FILES['file']
             
-            # Validate file extension
             if not uploaded_file.name.lower().endswith('.docx'):
                 return HttpResponseBadRequest("Only .docx files are supported")
             
-            # Process the uploaded file
             essay = process_uploaded_file(uploaded_file)
-            
-            # Get other parameters from form data
             required_word_count = int(request.POST.get('required_word_count', 0))
             topic = request.POST.get('topic', '')
         else:
-            # Handle JSON input
             try:
                 data = json.loads(request.body)
                 essay = data.get('essay', '')
@@ -60,7 +57,7 @@ def evaluate_essay(request):
         if not topic:
             return HttpResponseBadRequest("Topic is required")
         
-        # Calculate all marks
+        # Calculate all marks (parallel processing could be added here)
         word_count_marks = convert_to_serializable(
             calculate_word_count_marks(essay, required_word_count)
         )
@@ -71,13 +68,15 @@ def evaluate_essay(request):
             calculate_relevance_marks(essay, topic)
         )
         spelling_marks, _, _ = spelling_evaluator.evaluate_spelling(essay)
+        grammar_marks = grammar_evaluator.evaluate_grammar(essay)
         
-        # Calculate total marks (weighted average)
+        # Calculate total marks with weights
         total_marks = round(
-            (word_count_marks * 0.2 + 
-             word_richness_marks * 0.2 + 
-             relevance_marks * 0.3 +
-             convert_to_serializable(spelling_marks) * 0.3),
+            (word_count_marks * 0.15 + 
+             word_richness_marks * 0.15 + 
+             relevance_marks * 0.25 +
+             convert_to_serializable(spelling_marks) * 0.25 +
+             convert_to_serializable(grammar_marks) * 0.20),
             2
         )
         
@@ -86,6 +85,7 @@ def evaluate_essay(request):
             'word_richness_marks': word_richness_marks,
             'relevance_marks': relevance_marks,
             'spelling_marks': convert_to_serializable(spelling_marks),
+            'grammar_marks': grammar_marks,
             'total_marks': total_marks
         })
         
