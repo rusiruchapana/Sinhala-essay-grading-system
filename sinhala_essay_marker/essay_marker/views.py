@@ -11,6 +11,8 @@ from essay_marker.evaluator.relevance_checker import calculate_relevance_marks
 from essay_marker.evaluator.spelling_evaluator import SpellingEvaluator
 from essay_marker.evaluator.grammar_evaluator import GrammarEvaluator
 
+from .models import GradedEssay
+
 def convert_to_serializable(value):
     """Convert numpy and other non-serializable types to native Python types"""
     if isinstance(value, (np.generic, np.ndarray)):
@@ -23,16 +25,18 @@ def evaluate_essay(request):
     try:
         # Initialize evaluators
         spelling_evaluator = SpellingEvaluator()
-        grammar_evaluator = GrammarEvaluator()  # This will load the model on first use
+        grammar_evaluator = GrammarEvaluator()
         
         # Initialize variables
         essay = ''
         required_word_count = 0
         topic = ''
+        file_uploaded = False
         
         # Check if file was uploaded via form-data
         if request.FILES.get('file'):
             uploaded_file = request.FILES['file']
+            file_uploaded = True
             
             if not uploaded_file.name.lower().endswith('.docx'):
                 return HttpResponseBadRequest("Only .docx files are supported")
@@ -57,16 +61,14 @@ def evaluate_essay(request):
         if not topic:
             return HttpResponseBadRequest("Topic is required")
         
-        # Calculate all marks (parallel processing could be added here)
+        # Calculate all marks
         word_count_marks = convert_to_serializable(
             calculate_word_count_marks(essay, required_word_count)
         )
         word_richness_marks = convert_to_serializable(
-            calculate_word_richness_marks(essay)
-        )
+            calculate_word_richness_marks(essay))
         relevance_marks = convert_to_serializable(
-            calculate_relevance_marks(essay, topic)
-        )
+            calculate_relevance_marks(essay, topic))
         spelling_marks, _, _ = spelling_evaluator.evaluate_spelling(essay)
         grammar_marks = grammar_evaluator.evaluate_grammar(essay)
         
@@ -78,6 +80,20 @@ def evaluate_essay(request):
              convert_to_serializable(spelling_marks) * 0.25 +
              convert_to_serializable(grammar_marks) * 0.20),
             2
+        )
+        
+        # Save to database
+        GradedEssay.objects.create(
+            essay_text=essay,
+            word_count=len(essay.split()),
+            required_word_count=required_word_count,
+            topic=topic,
+            word_count_marks=word_count_marks,
+            word_richness_marks=word_richness_marks,
+            relevance_marks=relevance_marks,
+            spelling_marks=spelling_marks,
+            grammar_marks=grammar_marks,
+            total_marks=total_marks
         )
         
         return JsonResponse({

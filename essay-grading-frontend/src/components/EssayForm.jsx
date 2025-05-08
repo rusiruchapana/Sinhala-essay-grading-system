@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { 
-  Box, Button, TextField, Typography, Paper, 
-  FormControl, InputLabel, Select, MenuItem 
+  Box, Button, TextField, Typography, Paper,
+  FormControl, InputLabel, Select, MenuItem, Alert
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { gradeEssay } from '../services/api';
@@ -14,20 +14,35 @@ export const EssayForm = ({ onGrade }) => {
     file: null
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null);
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, file: e.target.files[0] });
+    setFormData({ ...formData, file: e.target.files[0], essay: '' });
+    setError(null);
+  };
+
+  const handleTextChange = (e) => {
+    setFormData({ ...formData, essay: e.target.value, file: null });
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     
+    if (!formData.essay && !formData.file) {
+      setError('Please either upload a file or paste your essay');
+      setIsSubmitting(false);
+      return;
+    }
+
     const data = new FormData();
     if (formData.file) {
       data.append('file', formData.file);
@@ -40,8 +55,8 @@ export const EssayForm = ({ onGrade }) => {
     try {
       const result = await gradeEssay(data);
       onGrade(result);
-    } catch (error) {
-      console.error('Error grading essay:', error);
+    } catch (err) {
+      setError(err.message || 'An error occurred while grading the essay');
     } finally {
       setIsSubmitting(false);
     }
@@ -52,6 +67,13 @@ export const EssayForm = ({ onGrade }) => {
       <Typography variant="h5" gutterBottom>
         Submit Your Essay
       </Typography>
+      
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit}>
         <Box sx={{ mb: 2 }}>
           <Button
@@ -88,7 +110,7 @@ export const EssayForm = ({ onGrade }) => {
           fullWidth
           variant="outlined"
           value={formData.essay}
-          onChange={handleChange}
+          onChange={handleTextChange}
           sx={{ mb: 2 }}
         />
 

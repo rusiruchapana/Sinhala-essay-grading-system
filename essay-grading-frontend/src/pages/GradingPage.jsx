@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Container, Typography } from '@mui/material';
+import { Container, Typography } from '@mui/material';
 import { EssayForm } from '../components/EssayForm';
 import { GradingResults } from '../components/GradingResults';
 
@@ -12,10 +12,8 @@ export const GradingPage = () => {
         Sinhala Essay Grading System
       </Typography>
       
-      <Box sx={{ my: 4 }}>
-        <EssayForm onGrade={setResults} />
-        <GradingResults results={results} />
-      </Box>
+      <EssayForm onGrade={setResults} />
+      {results && <GradingResults results={results} />}
     </Container>
   );
 };

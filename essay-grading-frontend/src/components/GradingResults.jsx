@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, LinearProgress, Divider } from '@mui/material';
+import { Box, Paper, Typography, LinearProgress, Divider, Alert } from '@mui/material';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
@@ -80,6 +80,10 @@ export const GradingResults = ({ results }) => {
           />
         </Box>
       </Box>
+      
+      <Alert severity="info" sx={{ mt: 2 }}>
+        Your essay has been graded and saved successfully!
+      </Alert>
     </Paper>
   );
 };
