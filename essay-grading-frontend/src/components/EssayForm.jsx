@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { 
   Box, Button, TextField, Typography, Paper,
-  FormControl, InputLabel, Select, MenuItem, Alert
+  FormControl, Alert
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { gradeEssay } from '../services/api';
@@ -27,10 +27,7 @@ export const EssayForm = ({ onGrade }) => {
     setError(null);
   };
 
-  const handleTextChange = (e) => {
-    setFormData({ ...formData, essay: e.target.value, file: null });
-    setError(null);
-  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,17 +99,7 @@ export const EssayForm = ({ onGrade }) => {
           OR
         </Typography>
 
-        <TextField
-          label="Paste Your Sinhala Essay"
-          name="essay"
-          multiline
-          rows={6}
-          fullWidth
-          variant="outlined"
-          value={formData.essay}
-          onChange={handleTextChange}
-          sx={{ mb: 2 }}
-        />
+        
 
         <TextField
           label="Topic"
@@ -126,18 +113,15 @@ export const EssayForm = ({ onGrade }) => {
         />
 
         <FormControl fullWidth sx={{ mb: 3 }}>
-          <InputLabel>Required Word Count</InputLabel>
-          <Select
+          <TextField
+            label="Required Word Count"
             name="required_word_count"
+            type="number"
             value={formData.required_word_count}
             onChange={handleChange}
-            label="Required Word Count"
-          >
-            <MenuItem value={100}>100 words</MenuItem>
-            <MenuItem value={200}>200 words</MenuItem>
-            <MenuItem value={300}>300 words</MenuItem>
-            <MenuItem value={500}>500 words</MenuItem>
-          </Select>
+            variant="outlined"
+            inputProps={{ min: 1 }} // Optional: restrict input to positive numbers
+          />
         </FormControl>
 
         <Button
