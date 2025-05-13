@@ -81,7 +81,7 @@ def evaluate_essay(request):
             return JsonResponse(
                 {
                     'error': 'Only Sinhala essays are accepted',
-                    'details': f'Your essay contains only {sinhala_ratio:.1%} Sinhala characters. Minimum required is 70%.'
+                    'details': ''
                 }, 
                 status=400
             )
