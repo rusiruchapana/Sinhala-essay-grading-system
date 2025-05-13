@@ -6,7 +6,7 @@ import {
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { gradeEssay } from '../services/api';
 
-export const EssayForm = ({ onGrade }) => {
+export const EssayForm = ({ onGrade, onNewSubmission }) => {
   const [formData, setFormData] = useState({
     essay: '',
     required_word_count: 200,
@@ -36,6 +36,7 @@ export const EssayForm = ({ onGrade }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    onNewSubmission(); // Call this to hide previous results
     
     if (!formData.essay && !formData.file) {
       setError('Please either upload a file or paste your essay');
@@ -53,24 +54,10 @@ export const EssayForm = ({ onGrade }) => {
     data.append('topic', formData.topic);
 
     try {
-      const response = await gradeEssay(data);
-      if (response.error) {
-        setError(response.error);
-      } else {
-        onGrade(response);
-      }
+      const result = await gradeEssay(data);
+      onGrade(result);
     } catch (err) {
-      // Handle different error types
-      if (err.response) {
-        // Backend returned an error response
-        setError(err.response.data.error || 'An error occurred while grading the essay');
-      } else if (err.request) {
-        // Request was made but no response received
-        setError('Server is not responding. Please try again later.');
-      } else {
-        // Something else happened
-        setError(err.message || 'An error occurred while grading the essay');
-      }
+      setError(err.message || 'An error occurred while grading the essay');
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +83,7 @@ export const EssayForm = ({ onGrade }) => {
             startIcon={<CloudUploadIcon />}
             fullWidth
           >
-            Upload Sinhala Word Document (.docx)
+            Upload Word Document
             <input
               type="file"
               ref={fileInputRef}
@@ -116,21 +103,9 @@ export const EssayForm = ({ onGrade }) => {
           OR
         </Typography>
 
+        
         <TextField
-          label="Paste Your Sinhala Essay"
-          name="essay"
-          multiline
-          rows={6}
-          fullWidth
-          variant="outlined"
-          value={formData.essay}
-          onChange={handleTextChange}
-          sx={{ mb: 2 }}
-          helperText="Only Sinhala language essays are accepted"
-        />
-
-        <TextField
-          label="Essay Topic (in Sinhala)"
+          label="Topic"
           name="topic"
           fullWidth
           variant="outlined"

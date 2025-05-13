@@ -5,6 +5,16 @@ import { GradingResults } from '../components/GradingResults';
 
 export const GradingPage = () => {
   const [results, setResults] = useState(null);
+  const [showResults, setShowResults] = useState(false);
+
+  const handleNewSubmission = () => {
+    setShowResults(false); // Hide results when new submission starts
+  };
+
+  const handleGrade = (gradingResults) => {
+    setResults(gradingResults);
+    setShowResults(true); // Show results when grading is complete
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -12,8 +22,11 @@ export const GradingPage = () => {
         Sinhala Essay Grading System
       </Typography>
       
-      <EssayForm onGrade={setResults} />
-      {results && <GradingResults results={results} />}
+      <EssayForm 
+        onGrade={handleGrade} 
+        onNewSubmission={handleNewSubmission} 
+      />
+      {showResults && <GradingResults results={results} />}
     </Container>
   );
 };
