@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import json
 import numpy as np
-from .utils import is_sinhala  # Add this import
+from .utils import is_sinhala
 from essay_marker.file_processing.docx_extractor import process_uploaded_file
 from essay_marker.evaluator.word_count import calculate_word_count_marks
 from essay_marker.evaluator.word_richness import calculate_word_richness_marks
@@ -38,7 +38,10 @@ def evaluate_essay(request):
             file_uploaded = True
             
             if not uploaded_file.name.lower().endswith('.docx'):
-                return HttpResponseBadRequest("Only .docx files are supported")
+                return JsonResponse(
+                    {'error': 'Only .docx files are supported'}, 
+                    status=400
+                )
             
             essay = process_uploaded_file(uploaded_file)
             required_word_count = int(request.POST.get('required_word_count', 0))
@@ -50,38 +53,59 @@ def evaluate_essay(request):
                 required_word_count = int(data.get('required_word_count', 0))
                 topic = data.get('topic', '')
             except json.JSONDecodeError:
-                return HttpResponseBadRequest("Invalid JSON input")
+                return JsonResponse(
+                    {'error': 'Invalid JSON input'}, 
+                    status=400
+                )
         
         # Validate inputs
         if not essay:
-            return HttpResponseBadRequest("Essay text is required")
+            return JsonResponse(
+                {'error': 'Essay text is required'}, 
+                status=400
+            )
         if required_word_count <= 0:
-            return HttpResponseBadRequest("Word count must be positive")
+            return JsonResponse(
+                {'error': 'Word count must be positive'}, 
+                status=400
+            )
         if not topic:
-            return HttpResponseBadRequest("Topic is required")
+            return JsonResponse(
+                {'error': 'Topic is required'}, 
+                status=400
+            )
         
-        # Check if essay is in Sinhala (at least 70% Sinhala characters)
-        if not is_sinhala(essay):
-            return HttpResponseBadRequest("Only Sinhala essays are accepted. Please submit your essay in Sinhala.")
+        # Check if essay is in Sinhala
+        is_sinhala_essay, sinhala_ratio = is_sinhala(essay)
+        if not is_sinhala_essay:
+            return JsonResponse(
+                {
+                    'error': 'Only Sinhala essays are accepted',
+                    'details': f'Your essay contains only {sinhala_ratio:.1%} Sinhala characters. Minimum required is 70%.'
+                }, 
+                status=400
+            )
         
         # Calculate all marks
         word_count_marks = convert_to_serializable(
             calculate_word_count_marks(essay, required_word_count)
         )
         word_richness_marks = convert_to_serializable(
-            calculate_word_richness_marks(essay))
+            calculate_word_richness_marks(essay)
+        )
         relevance_marks = convert_to_serializable(
-            calculate_relevance_marks(essay, topic))
+            calculate_relevance_marks(essay, topic)
+        )
         spelling_marks, _, _ = spelling_evaluator.evaluate_spelling(essay)
         grammar_marks = grammar_evaluator.evaluate_grammar(essay)
         
         # Calculate total marks with weights
         total_marks = round(
-            (word_count_marks * 0.10 + 
-             word_richness_marks * 0.20 + 
-             relevance_marks * 0.35 +
-             convert_to_serializable(spelling_marks) * 0.10 +
-             convert_to_serializable(grammar_marks) * 0.25),
+            (word_count_marks * 0.15 + 
+             word_richness_marks * 0.15 + 
+             relevance_marks * 0.25 +
+             convert_to_serializable(spelling_marks) * 0.25 +
+             convert_to_serializable(grammar_marks) * 0.20),
             2
         )
         
@@ -109,4 +133,7 @@ def evaluate_essay(request):
         })
         
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse(
+            {'error': 'An unexpected error occurred', 'details': str(e)},
+            status=500
+        )

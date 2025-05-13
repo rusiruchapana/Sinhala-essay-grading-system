@@ -27,16 +27,13 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
     setError(null);
   };
 
-  const handleTextChange = (e) => {
-    setFormData({ ...formData, essay: e.target.value, file: null });
-    setError(null);
-  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-    onNewSubmission(); // Call this to hide previous results
+    onNewSubmission(); // Hide previous results
     
     if (!formData.essay && !formData.file) {
       setError('Please either upload a file or paste your essay');
@@ -54,10 +51,35 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
     data.append('topic', formData.topic);
 
     try {
-      const result = await gradeEssay(data);
-      onGrade(result);
+      const response = await gradeEssay(data);
+      if (response.error) {
+        // Handle backend validation errors
+        setError(
+          response.details 
+            ? `${response.error}: ${response.details}`
+            : response.error
+        );
+      } else {
+        onGrade(response);
+      }
     } catch (err) {
-      setError(err.message || 'An error occurred while grading the essay');
+      // Handle network errors
+      if (err.response) {
+        // Backend returned an error response
+        const errorData = err.response.data;
+        console.log(errorData.details);
+        setError(
+          errorData.details 
+            ? `${errorData.error}: ${errorData.details}`
+            : errorData.error || 'An error occurred while grading the essay'
+        );
+      } else if (err.request) {
+        // Request was made but no response received
+        setError('Server is not responding. Please try again later.');
+      } else {
+        // Something else happened
+        setError(err.message || 'An error occurred while grading the essay');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +105,7 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
             startIcon={<CloudUploadIcon />}
             fullWidth
           >
-            Upload Word Document
+            Upload Sinhala Word Document (.docx)
             <input
               type="file"
               ref={fileInputRef}
@@ -104,8 +126,9 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
         </Typography>
 
         
+
         <TextField
-          label="Topic"
+          label="Topic (in Sinhala)"
           name="topic"
           fullWidth
           variant="outlined"

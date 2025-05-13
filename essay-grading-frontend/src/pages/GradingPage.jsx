@@ -8,12 +8,12 @@ export const GradingPage = () => {
   const [showResults, setShowResults] = useState(false);
 
   const handleNewSubmission = () => {
-    setShowResults(false); // Hide results when new submission starts
+    setShowResults(false);
   };
 
   const handleGrade = (gradingResults) => {
     setResults(gradingResults);
-    setShowResults(true); // Show results when grading is complete
+    setShowResults(true);
   };
 
   return (
