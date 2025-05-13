@@ -77,11 +77,11 @@ def evaluate_essay(request):
         
         # Calculate total marks with weights
         total_marks = round(
-            (word_count_marks * 0.15 + 
-             word_richness_marks * 0.15 + 
-             relevance_marks * 0.25 +
-             convert_to_serializable(spelling_marks) * 0.25 +
-             convert_to_serializable(grammar_marks) * 0.20),
+            (word_count_marks * 0.10 + 
+             word_richness_marks * 0.20 + 
+             relevance_marks * 0.35 +
+             convert_to_serializable(spelling_marks) * 0.10 +
+             convert_to_serializable(grammar_marks) * 0.25),
             2
         )
         
