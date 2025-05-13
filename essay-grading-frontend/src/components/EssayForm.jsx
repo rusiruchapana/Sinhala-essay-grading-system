@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { 
   Box, Button, TextField, Typography, Paper,
-  FormControl, Alert
+  FormControl, Alert, CircularProgress
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { gradeEssay } from '../services/api';
@@ -27,7 +27,10 @@ export const EssayForm = ({ onGrade }) => {
     setError(null);
   };
 
-
+  const handleTextChange = (e) => {
+    setFormData({ ...formData, essay: e.target.value, file: null });
+    setError(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,10 +53,24 @@ export const EssayForm = ({ onGrade }) => {
     data.append('topic', formData.topic);
 
     try {
-      const result = await gradeEssay(data);
-      onGrade(result);
+      const response = await gradeEssay(data);
+      if (response.error) {
+        setError(response.error);
+      } else {
+        onGrade(response);
+      }
     } catch (err) {
-      setError(err.message || 'An error occurred while grading the essay');
+      // Handle different error types
+      if (err.response) {
+        // Backend returned an error response
+        setError(err.response.data.error || 'An error occurred while grading the essay');
+      } else if (err.request) {
+        // Request was made but no response received
+        setError('Server is not responding. Please try again later.');
+      } else {
+        // Something else happened
+        setError(err.message || 'An error occurred while grading the essay');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -62,7 +79,7 @@ export const EssayForm = ({ onGrade }) => {
   return (
     <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Submit Your Essay
+        Submit Your Sinhala Essay
       </Typography>
       
       {error && (
@@ -79,7 +96,7 @@ export const EssayForm = ({ onGrade }) => {
             startIcon={<CloudUploadIcon />}
             fullWidth
           >
-            Upload Word Document
+            Upload Sinhala Word Document (.docx)
             <input
               type="file"
               ref={fileInputRef}
@@ -99,10 +116,21 @@ export const EssayForm = ({ onGrade }) => {
           OR
         </Typography>
 
-        
+        <TextField
+          label="Paste Your Sinhala Essay"
+          name="essay"
+          multiline
+          rows={6}
+          fullWidth
+          variant="outlined"
+          value={formData.essay}
+          onChange={handleTextChange}
+          sx={{ mb: 2 }}
+          helperText="Only Sinhala language essays are accepted"
+        />
 
         <TextField
-          label="Topic"
+          label="Essay Topic (in Sinhala)"
           name="topic"
           fullWidth
           variant="outlined"
@@ -120,7 +148,7 @@ export const EssayForm = ({ onGrade }) => {
             value={formData.required_word_count}
             onChange={handleChange}
             variant="outlined"
-            inputProps={{ min: 1 }} // Optional: restrict input to positive numbers
+            inputProps={{ min: 1 }}
           />
         </FormControl>
 
@@ -131,6 +159,7 @@ export const EssayForm = ({ onGrade }) => {
           size="large"
           fullWidth
           disabled={isSubmitting}
+          startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
         >
           {isSubmitting ? 'Grading...' : 'Grade Essay'}
         </Button>

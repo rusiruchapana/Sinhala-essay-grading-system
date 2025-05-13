@@ -3,14 +3,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import json
 import numpy as np
-
+from .utils import is_sinhala  # Add this import
 from essay_marker.file_processing.docx_extractor import process_uploaded_file
 from essay_marker.evaluator.word_count import calculate_word_count_marks
 from essay_marker.evaluator.word_richness import calculate_word_richness_marks
 from essay_marker.evaluator.relevance_checker import calculate_relevance_marks
 from essay_marker.evaluator.spelling_evaluator import SpellingEvaluator
 from essay_marker.evaluator.grammar_evaluator import GrammarEvaluator
-
 from .models import GradedEssay
 
 def convert_to_serializable(value):
@@ -60,6 +59,10 @@ def evaluate_essay(request):
             return HttpResponseBadRequest("Word count must be positive")
         if not topic:
             return HttpResponseBadRequest("Topic is required")
+        
+        # Check if essay is in Sinhala (at least 70% Sinhala characters)
+        if not is_sinhala(essay):
+            return HttpResponseBadRequest("Only Sinhala essays are accepted. Please submit your essay in Sinhala.")
         
         # Calculate all marks
         word_count_marks = convert_to_serializable(
