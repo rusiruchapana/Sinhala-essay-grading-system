@@ -4,29 +4,46 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const GradingResultItem = ({ label, value, max = 100 }) => (
-  <Box sx={{ mb: 2 }}>
-    <Typography variant="body1" gutterBottom>
-      {label}: {value}/{max}
-    </Typography>
-    <LinearProgress
-      variant="determinate"
-      value={(value / max) * 100}
-      sx={{ height: 10, borderRadius: 5 }}
-      color={
-        value >= 80 ? 'success' :
-        value >= 60 ? 'primary' :
-        'error'
-      }
-    />
-  </Box>
-);
+// Define consistent colors for all metrics
+const METRIC_COLORS = {
+  'Word Count': '#4caf50',    // Green
+  'Word Richness': '#2196f3', // Blue
+  'Relevance': '#9c27b0',     // Purple
+  'Spelling': '#ff9800',      // Orange
+  'Grammar': '#f44336'        // Red
+};
+
+const GradingResultItem = ({ label, value, max = 100 }) => {
+  // Get the color for this specific metric
+  const color = METRIC_COLORS[label] || '#4caf50'; // Default to green
+  
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Typography variant="body1" gutterBottom>
+        {label}: {value}/{max}
+      </Typography>
+      <LinearProgress
+        variant="determinate"
+        value={(value / max) * 100}
+        sx={{ 
+          height: 10, 
+          borderRadius: 5,
+          backgroundColor: `${color}30`, // 30% opacity for background
+          '& .MuiLinearProgress-bar': {
+            backgroundColor: color
+          }
+        }}
+      />
+    </Box>
+  );
+};
 
 export const GradingResults = ({ results }) => {
   if (!results) return null;
 
+  // Prepare chart data using the same color mapping
   const chartData = {
-    labels: ['Word Count', 'Word Richness', 'Relevance', 'Spelling', 'Grammar'],
+    labels: Object.keys(METRIC_COLORS),
     datasets: [{
       data: [
         results.word_count_marks,
@@ -35,13 +52,7 @@ export const GradingResults = ({ results }) => {
         results.spelling_marks,
         results.grammar_marks
       ],
-      backgroundColor: [
-        '#4caf50',  // Green
-        '#2196f3',  // Blue
-        '#9c27b0',  // Purple
-        '#ff9800',  // Orange
-        '#f44336'   // Red
-      ],
+      backgroundColor: Object.values(METRIC_COLORS),
       borderWidth: 1,
     }]
   };

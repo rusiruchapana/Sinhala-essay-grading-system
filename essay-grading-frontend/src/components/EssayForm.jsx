@@ -52,13 +52,16 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
 
     try {
       const response = await gradeEssay(data);
+      console.log(response);
       if (response.error) {
         // Handle backend validation errors
+        console.log(response.error);
         setError(
           response.details 
             ? `${response.error}: ${response.details}`
             : response.error
         );
+        
       } else {
         onGrade(response);
       }
@@ -67,7 +70,7 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
       if (err.response) {
         // Backend returned an error response
         const errorData = err.response.data;
-        console.log(errorData.details);
+        //console.log(errorData.details);
         setError(
           errorData.details 
             ? `${errorData.error}: ${errorData.details}`
@@ -91,6 +94,8 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
         Submit Your Sinhala Essay
       </Typography>
       
+
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
