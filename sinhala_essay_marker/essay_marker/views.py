@@ -11,6 +11,10 @@ from essay_marker.evaluator.relevance_checker import calculate_relevance_marks
 from essay_marker.evaluator.spelling_evaluator import SpellingEvaluator
 from essay_marker.evaluator.grammar_evaluator import GrammarEvaluator
 from .models import GradedEssay
+from django.views.decorators.http import require_GET
+from django.core import serializers
+from django.views.decorators.http import require_http_methods
+
 
 def convert_to_serializable(value):
     """Convert numpy and other non-serializable types to native Python types"""
@@ -137,3 +141,58 @@ def evaluate_essay(request):
             {'error': 'An unexpected error occurred', 'details': str(e)},
             status=500
         )
+
+@csrf_exempt
+@require_GET
+def get_all_essays(request):
+    try:
+        essays = GradedEssay.objects.all().order_by('-created_at')
+        essays_data = []
+        
+        for essay in essays:
+            essays_data.append({
+                'id': essay.id,
+                'topic': essay.topic,
+                'word_count': essay.word_count,
+                'required_word_count': essay.required_word_count,
+                'word_count_marks': essay.word_count_marks,
+                'word_richness_marks': essay.word_richness_marks,
+                'relevance_marks': essay.relevance_marks,
+                'spelling_marks': essay.spelling_marks,
+                'grammar_marks': essay.grammar_marks,
+                'total_marks': essay.total_marks,
+                'created_at': essay.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                'essay_text': essay.essay_text[:100] + '...'  # First 100 chars
+            })
+            
+        return JsonResponse({'essays': essays_data}, status=200)
+        
+    except Exception as e:
+        return JsonResponse(
+            {'error': 'Failed to fetch essays', 'details': str(e)},
+            status=500
+        )
+    
+from django.views.decorators.http import require_http_methods
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_essay(request, essay_id):
+    try:
+        essay = GradedEssay.objects.get(id=essay_id)
+        essay.delete()
+        return JsonResponse({
+            'success': True,
+            'message': f'Essay with ID {essay_id} was deleted successfully'
+        }, status=200)
+    except GradedEssay.DoesNotExist:
+        return JsonResponse(
+            {'error': f'Essay with ID {essay_id} not found'},
+            status=404
+        )
+    except Exception as e:
+        return JsonResponse(
+            {'error': 'Failed to delete essay', 'details': str(e)},
+            status=500
+        )
+

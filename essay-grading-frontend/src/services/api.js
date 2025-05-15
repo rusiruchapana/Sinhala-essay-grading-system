@@ -37,3 +37,34 @@ export const gradeEssay = async (formData) => {
     }
   }
 };
+
+export const getAllEssays = async () => {
+  try {
+    const response = await api.get('/get-all-essays/');
+    return response.data.essays;
+  } catch (error) {
+    if (error.response) {
+      throw new ApiError(
+        error.response.data.error || 'Failed to fetch essays',
+        error.response.data.details || '',
+        error.response.status
+      );
+    }
+    throw new ApiError('Network error while fetching essays');
+  }
+};
+
+export const deleteEssay = async (id) => {
+  try {
+    await api.delete(`/delete-essay/${id}/`);
+  } catch (error) {
+    if (error.response) {
+      throw new ApiError(
+        error.response.data.error || 'Failed to delete essay',
+        error.response.data.details || '',
+        error.response.status
+      );
+    }
+    throw new ApiError('Network error while deleting essay');
+  }
+};

@@ -64,42 +64,7 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
       setIsSubmitting(false);
     }
 
-    // try {
-    //   const response = await gradeEssay(data);
-    //   console.log(response);
-    //   if (response.error) {
-    //     // Handle backend validation errors
-    //     console.log(response.error);
-    //     setError(
-    //       response.details 
-    //         ? `${response.error}: ${response.details}`
-    //         : response.error
-    //     );
-        
-    //   } else {
-    //     onGrade(response);
-    //   }
-    // } catch (err) {
-    //   // Handle network errors
-    //   if (err.response) {
-    //     // Backend returned an error response
-    //     const errorData = err.response.data;
-    //     //console.log(errorData.details);
-    //     setError(
-    //       errorData.details 
-    //         ? `${errorData.error}: ${errorData.details}`
-    //         : errorData.error || 'An error occurred while grading the essay'
-    //     );
-    //   } else if (err.request) {
-    //     // Request was made but no response received
-    //     setError('Server is not responding. Please try again later.');
-    //   } else {
-    //     // Something else happened
-    //     setError(err.message || 'An error occurred while grading the essay');
-    //   }
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
+
   };
 
   return (
@@ -140,10 +105,7 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
           )}
         </Box>
 
-        {/* <Typography variant="body1" align="center" sx={{ my: 2 }}>
-          OR
-        </Typography> */}
-
+        
         
 
         <TextField
