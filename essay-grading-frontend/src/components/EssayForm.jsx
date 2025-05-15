@@ -5,8 +5,11 @@ import {
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { gradeEssay } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 export const EssayForm = ({ onGrade, onNewSubmission }) => {
+
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     essay: '',
     required_word_count: 200,
@@ -52,6 +55,7 @@ export const EssayForm = ({ onGrade, onNewSubmission }) => {
 
     try {
       const result = await gradeEssay(data);
+      navigate('/results', { state: { results: result } });
       onGrade(result);
     } catch (err) {
       // Handle the structured error from api.js

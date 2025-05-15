@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { lightTheme, darkTheme } from './styles/theme';
 import { Navbar } from './components/Navbar';
 import { GradingPage } from './pages/GradingPage';
+import { ResultsPage } from './pages/ResultsPage';
 import { HistoryPage } from './pages/HistoryPage';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         />
         <Routes>
           <Route path="/" element={<GradingPage />} />
+          <Route path="/results" element={<ResultsPage />} />
           <Route path="/history" element={<HistoryPage />} />
         </Routes>
       </BrowserRouter>
